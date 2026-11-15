@@ -74,3 +74,10 @@ def view_user(session: Session, user_name, user_email):
         .filter_by(userName=user_name, email=user_email)
         .first()
     )
+ 
+def view_all(session: Session):
+    return session.query(users_auths).all()
+
+def exit():
+    print("Exiting terminal tester.")
+    exit()
