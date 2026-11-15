@@ -6,11 +6,13 @@ from Auth_funcs.crud_auth import (
     regis_user,
     update_user,
     view_user,
+    view_all,
+    exit, 
 )
 
 
 def terminal_db_tester(session: Session):
-    act = input("Enter the action you want to perform (add, delete, update, view): ")
+    act = input("Enter the action you want to perform (add, delete, update, view, view_all, exit): ")
     if act == "add":
         user_name = input("Enter user name: ")
         user_password = input("Enter user password: ")
@@ -40,3 +42,13 @@ def terminal_db_tester(session: Session):
             print(f"User Name: {user.userName}, Email: {user.email}")
         else:
             print("User not found.")
+    elif act == "view_all":
+        # Implement view_all_users function in crud_auth.py
+        users = view_all(session)
+        if users:
+            for user in users:
+                print(f"User Name: {user.userName}, Email: {user.email}")
+        else:
+            print("No users found.")
+    elif act == "exit":
+        print("Exiting terminal tester.")

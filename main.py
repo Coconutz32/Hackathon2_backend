@@ -101,11 +101,23 @@ def login_user(user: LoginData, session: Session = Depends(get_db)):
 #===========================
 # Terminal database testing
 #===========================
-act = input("Enter 'run' to start the FastAPI server or 'test' to run terminal tests: ")
-if act == "run":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
-else:
-    from terminal_tester import terminal_db_tester
-    with Session(get_engine()) as session:
-        terminal_db_tester(session)
+act = "neutral"
+while act != "exit":
+    act = input("Enter 'run' to start the FastAPI server or 'test' to run terminal tests: ")
+    if act == "run":
+        import uvicorn
+        uvicorn.run(app, host="127.0.0.1", port=8000)
+    else:
+        from terminal_tester import terminal_db_tester
+        with Session(get_engine()) as session:
+            terminal_db_tester(session)
+    act = input(
+        "Enter the action you want to perform (add, delete, update, view) or 'exit' to quit: "
+    )
+    if act in ["add", "delete", "update", "view"]:
+        with Session(get_engine()) as session:
+            from terminal_tester import terminal_db_tester
+
+            terminal_db_tester(session)
+    elif act != "exit":
+        print("Invalid action. Please try again.")
