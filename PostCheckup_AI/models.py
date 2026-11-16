@@ -86,8 +86,3 @@ class PostCheckupReport:
             ]
         )
 
-
-@dataclass
-class QuestionAnswer:
-    question: str
-    answer: str

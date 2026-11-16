@@ -14,16 +14,7 @@ def main():
     note = SAMPLE_NOTES.get(visit_id)
     if note is None:
         sys.exit(f"Unknown visit id. Available: {', '.join(SAMPLE_NOTES)}")
-
-    ai = PostCheckupAI(note)
-    print(ai.build_report().to_text())
-    print("\nAsk me anything about your doctor's advice. Type 'exit' to quit.\n")
-
-    while True:
-        question = input("You: ").strip()
-        if question.lower() in ("exit", "quit", "done"):
-            break
-        print(f"Assistant: {ai.ask(question).answer}\n")
+    print(PostCheckupAI(note).build_report().to_text())
 
 
 if __name__ == "__main__":

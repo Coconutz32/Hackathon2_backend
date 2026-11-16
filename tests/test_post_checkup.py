@@ -2,11 +2,8 @@
 Run with:  python -m pytest tests
 """
 
-from PostCheckup_AI.chatbot import (
-    ERROR_MESSAGE,
-    REJECTION_MESSAGE,
+from PostCheckup_AI.summarizer import (
     SUMMARY_UNAVAILABLE,
-    ChatAnswer,
     PostCheckupAI,
     ReportDraft,
     TaskDraft,
@@ -23,11 +20,6 @@ class FakeClient:
         self.calls.append((system, messages, schema))
         if self.fail:
             raise ConnectionError("no network")
-        if schema is ChatAnswer:
-            question = messages[-1]["text"]
-            if "football" in question:
-                return ChatAnswer(is_health_related=False, answer="")
-            return ChatAnswer(is_health_related=True, answer=f"Answer to: {question}")
         return ReportDraft(
             simple_summary="Your blood pressure and cholesterol are too high.",
             key_points=["Take your medicine every day"],
@@ -65,29 +57,3 @@ def test_report_failure_still_shows_original_note():
     assert report.simple_summary == SUMMARY_UNAVAILABLE and report.plan == []
     assert "Atorvastatin 20 mg" in report.to_text()
 
-
-def test_health_question_is_answered_using_doctor_note():
-    client = FakeClient()
-    ai = make_ai(client)
-    reply = ai.ask("Why do I take amlodipine?")
-    assert not reply.rejected
-    assert reply.answer == "Answer to: Why do I take amlodipine?"
-    assert "Amlodipine 5 mg" in client.calls[0][0]  # note is in the system prompt
-    # earlier exchanges are sent as history
-    ai.ask("And at night?")
-    assert [m["role"] for m in client.calls[-1][1]] == ["user", "model", "user"]
-
-
-def test_unrelated_question_is_rejected():
-    client = FakeClient()
-    ai = make_ai(client)
-    reply = ai.ask("Who won the football match?")
-    assert reply.rejected and reply.answer == REJECTION_MESSAGE
-    assert ai.conversation == []
-    ai.ask("What is LDL?")
-    assert all("football" not in m["text"] for m in client.calls[-1][1])
-
-
-def test_chat_failure_is_handled():
-    reply = make_ai(FakeClient(fail=True)).ask("Why do I take amlodipine?")
-    assert reply.answer == ERROR_MESSAGE and not reply.rejected
